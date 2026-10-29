@@ -49,7 +49,7 @@ int kv_put(kv_t *db, char *key, char *value)
         return -1;
       }
       entry->value = newval;
-      return search_index;
+      return 0;
     }
 
     if (!entry->key || entry->key == (void *)TOMBSTONE) {
@@ -63,7 +63,7 @@ int kv_put(kv_t *db, char *key, char *value)
       entry->value = newval;
       entry->key = newkey;
       db->count++;
-      return search_index;
+      return 0;
     }
   }
 
