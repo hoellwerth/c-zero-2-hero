@@ -1,4 +1,74 @@
 #include <kv.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define TOMBSTONE 0xdeadbeef
+
+size_t hash(char *value, size_t capacity)
+{
+  size_t hash = 0x13371337deadbeef;
+  
+  while (*value) {
+    hash ^= *value;
+    hash = hash << 8;
+    hash += *value;
+
+    value++;
+  }
+
+  return hash % capacity;
+}
+
+/*  kv_put: put a value into the key 
+ *  @params: 
+ *    db: a pointer to the key-value structure
+ *    key: a char pointer to the key 
+ *    value: a char pointer to the value
+ *  @return:
+ *    index of the key, on error -1
+*/
+int kv_put(kv_t *db, char *key, char *value)
+{
+  if (!db || !key || !value) {
+    return -1;
+  }
+
+  // hash key
+  size_t index = hash(key, db->capacity);
+
+  for (int i = 0; i < db->capacity - 1; i++) {
+    size_t search_index = (index + 1) % db->capacity;
+    kv_entry_t *entry = &db->entries[search_index];
+
+    // two cases:
+    // 1. key already set: update it
+    // 2. empty slot: put value there
+    if (entry->key && entry->key != (void *)TOMBSTONE && !strcmp(entry->key, key)) {
+      char *newval = strdup(value);
+      if (!newval) {
+        return -1;
+      }
+      entry->value = newval;
+      return search_index;
+    }
+
+    if (!entry->key || entry->key == (void *)TOMBSTONE) {
+      char *newval = strdup(value);
+      char *newkey = strdup(key);
+      if (!newval || !newkey) {
+        free(newval);
+        free(newkey);
+        return -1;
+      }
+      entry->value = newval;
+      entry->key = newkey;
+      db->count++;
+      return search_index;
+    }
+  }
+
+  return -2;
+}
 
 kv_t *kv_init(size_t capacity)
 {
