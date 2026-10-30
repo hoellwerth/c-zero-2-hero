@@ -102,6 +102,39 @@ int kv_put(kv_t *db, char *key, char *value)
   return -2;
 }
 
+int kv_delete(kv_t *db, char *key)
+{
+  if (!db || !key) {
+    return -1;
+  }
+
+  // hash key
+  size_t index = hash(key, db->capacity);
+
+  for (int i = 0; i < db->capacity - 1; i++) {
+    size_t search_index = (index + 1) % db->capacity;
+    kv_entry_t *entry = &db->entries[search_index];
+
+    if (entry->key == NULL) {
+      return -1;
+    }
+
+    if (!strcmp(entry->key, key) && entry->key != (void *)TOMBSTONE) {
+      free(entry->key);
+      free(entry->value);
+
+      db->count--;
+
+      entry->key = TOMBSTONE;
+      entry->value = NULL;
+
+      return search_index;
+    }
+  }
+
+  return -1;
+}
+
 kv_t *kv_init(size_t capacity)
 {
   if (capacity == 0) {

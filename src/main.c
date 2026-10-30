@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <kv.h>
+#include <string.h>
+#include <assert.h>
 
 int main() {
   kv_t *table = kv_init(1024);
@@ -21,6 +23,10 @@ int main() {
   char *val1 = kv_get(table, "hehe");
   char *val2 = kv_get(table, "daisy");
   char *val3 = kv_get(table, "0xDEADBEEF");
+
+  val1 = NULL; 
+  kv_delete(table, "hehe");
+
   printf("val1: %s\n", val1);
   printf("val2: %s\n", val2);
   printf("val3: %s\n", val3);
