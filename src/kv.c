@@ -34,15 +34,15 @@ char *kv_get(kv_t *db, char *key)
   // hash key
   size_t index = hash(key, db->capacity);
 
-  for (int i = 0; i < db->capacity - 1; i++) {
-    size_t search_index = (index + 1) % db->capacity;
+  for (size_t i = 0; i < db->capacity; i++) {
+    size_t search_index = (index + i) % db->capacity;
     kv_entry_t *entry = &db->entries[search_index];
 
     if (entry->key == NULL) {
       return NULL;
     }
 
-    if (entry->key && entry->key != (void *)TOMBSTONE && !strcmp(entry->key, key)) {
+    if (entry->key != (void *)TOMBSTONE && !strcmp(entry->key, key)) {
       return entry->value;
     }
   }
@@ -68,8 +68,8 @@ int kv_put(kv_t *db, char *key, char *value)
   // hash key
   size_t index = hash(key, db->capacity);
 
-  for (int i = 0; i < db->capacity - 1; i++) {
-    size_t search_index = (index + 1) % db->capacity;
+  for (size_t i = 0; i < db->capacity; i++) {
+    size_t search_index = (index + i) % db->capacity;
     kv_entry_t *entry = &db->entries[search_index];
 
     // two cases:
@@ -80,6 +80,7 @@ int kv_put(kv_t *db, char *key, char *value)
       if (!newval) {
         return -1;
       }
+      free(entry->value);
       entry->value = newval;
       return 0;
     }
@@ -111,15 +112,15 @@ int kv_delete(kv_t *db, char *key)
   // hash key
   size_t index = hash(key, db->capacity);
 
-  for (int i = 0; i < db->capacity - 1; i++) {
-    size_t search_index = (index + 1) % db->capacity;
+  for (size_t i = 0; i < db->capacity; i++) {
+    size_t search_index = (index + i) % db->capacity;
     kv_entry_t *entry = &db->entries[search_index];
 
     if (entry->key == NULL) {
       return -1;
     }
 
-    if (!strcmp(entry->key, key) && entry->key != (void *)TOMBSTONE) {
+    if (entry->key != (void *)TOMBSTONE && !strcmp(entry->key, key)) {
       free(entry->key);
       free(entry->value);
 
