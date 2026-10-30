@@ -19,6 +19,40 @@ size_t hash(char *value, size_t capacity)
   return hash % capacity;
 }
 
+/*  kv_get put a value into the key 
+ *  @params: 
+ *    db: a pointer to the key-value structure
+ *    key: a char pointer to the key 
+ *    value: a char pointer to the value
+ *  @return:
+ *    pointer to the value, NULL if not found
+*/
+char *kv_get(kv_t *db, char *key)
+{
+  if (!db || !key) {
+    return NULL;
+  }
+
+  // hash key
+  size_t index = hash(key, db->capacity);
+
+  for (int i = 0; i < db->capacity - 1; i++) {
+    size_t search_index = (index + 1) % db->capacity;
+    kv_entry_t *entry = &db->entries[search_index];
+
+    if (entry->key == NULL) {
+      return NULL;
+    }
+
+    if (!strcmp(entry->key, key) && entry->key != (void *)TOMBSTONE) {
+      return entry->value;
+    }
+  }
+
+  return NULL;
+}
+
+
 /*  kv_put: put a value into the key 
  *  @params: 
  *    db: a pointer to the key-value structure
