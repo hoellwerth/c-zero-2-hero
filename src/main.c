@@ -7,16 +7,16 @@ int main() {
   kv_t *table = kv_init(1024);
 
   printf("%p\n", table);
-  printf("%ld\n", table->capacity);
+  printf("%zu\n", table->capacity);
 
   kv_put(table, "hehe", "haha");
   kv_put(table, "hehe", "hoho");
   kv_put(table, "hello", "world");
   kv_put(table, "daisy", "chain");
 
-  for (int i = 0; i < table->capacity; i++) {
+  for (size_t i = 0; i < table->capacity; i++) {
     if (table->entries[i].key) {
-      printf("[%d] %s: %s\n", i, table->entries[i].key, table->entries[i].value);
+      printf("[%zu] %s: %s\n", i, table->entries[i].key, table->entries[i].value);
     }
   }
 
@@ -31,8 +31,6 @@ int main() {
   printf("val2: %s\n", val2);
   printf("val3: %s\n", val3);
 
-  kv_free(table);
-
   kv_t *db = kv_init(16);
 
   kv_put(db, "name", "alice");
@@ -43,7 +41,9 @@ int main() {
   assert(db->count == 1);
 
   assert(kv_delete(db, "missing") == -1);
-  printf("success");
 
+  kv_free(table);
   kv_free(db);
+
+  printf("success\n");
 }

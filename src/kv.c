@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <kv.h>
 #include <stdlib.h>
 #include <string.h>
@@ -150,7 +152,7 @@ kv_t *kv_init(size_t capacity)
   table->capacity = capacity;
   table->count = 0;
 
-  table->entries = calloc(sizeof(kv_entry_t), capacity);
+  table->entries = calloc(capacity, sizeof(kv_entry_t));
   if (table->entries == NULL) {
     return NULL;
   }
@@ -158,27 +160,21 @@ kv_t *kv_init(size_t capacity)
   return table;
 }
 
-int kv_free(kv_t *db)
+void kv_free(kv_t *db)
 {
   if (!db) {
-    return -1;
+    return;
   }
 
-  for (int i = 0; i < db->capacity - 1; i++) {
+  for (size_t i = 0; i < db->capacity; i++) {
     kv_entry_t *entry = &db->entries[i];
 
     if (entry->key && entry->key != (void *)TOMBSTONE) {
       free(entry->key);
       free(entry->value);
-
-      entry->key = NULL;
-      entry->value = NULL;
-      db->count--;
     }
   }
 
   free(db->entries);
   free(db);
-
-  return 0;
 }
