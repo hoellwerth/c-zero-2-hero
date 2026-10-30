@@ -42,7 +42,7 @@ char *kv_get(kv_t *db, char *key)
       return NULL;
     }
 
-    if (!strcmp(entry->key, key) && entry->key != (void *)TOMBSTONE) {
+    if (entry->key && entry->key != (void *)TOMBSTONE && !strcmp(entry->key, key)) {
       return entry->value;
     }
   }

@@ -30,4 +30,16 @@ int main() {
   printf("val1: %s\n", val1);
   printf("val2: %s\n", val2);
   printf("val3: %s\n", val3);
+
+  kv_t *db = kv_init(16);
+
+  kv_put(db, "name", "alice");
+  kv_put(db, "city", "berlin");
+
+  assert(kv_delete(db, "name") == 0);
+  assert(kv_get(db, "name") == NULL);
+  assert(db->count == 1);
+
+  assert(kv_delete(db, "missing") == -1);
+  printf("success");
 }
