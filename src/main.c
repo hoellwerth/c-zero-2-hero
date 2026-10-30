@@ -31,6 +31,8 @@ int main() {
   printf("val2: %s\n", val2);
   printf("val3: %s\n", val3);
 
+  kv_free(table);
+
   kv_t *db = kv_init(16);
 
   kv_put(db, "name", "alice");
@@ -42,4 +44,6 @@ int main() {
 
   assert(kv_delete(db, "missing") == -1);
   printf("success");
+
+  kv_free(db);
 }
